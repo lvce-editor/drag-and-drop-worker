@@ -16,7 +16,7 @@ fi
 
 function updateDependencies {
   echo "updating dependencies..."
-  OUTPUT=`ncu -u -x @types/node -x rollup -x lerna -x @lvce-editor/server -x @babel/preset-typescript -x typescript`
+  OUTPUT=`ncu -u -x @types/node -x rollup -x @babel/preset-typescript -x typescript`
   SUB='All dependencies match the latest package versions'
   if [[ "$OUTPUT" == *"$SUB"* ]]; then
     echo "$OUTPUT"
@@ -28,10 +28,7 @@ function updateDependencies {
 
                                                        updateDependencies             &&
 cd packages/build                                   && updateDependencies && cd ../.. &&
-cd packages/e2e                                     && updateDependencies && cd ../.. &&
-cd packages/memory                                  && updateDependencies && cd ../.. &&
-cd packages/server                                  && updateDependencies && cd ../.. &&
-cd packages/completion-worker                     && updateDependencies && cd ../.. &&
+cd packages/drag-and-drop-worker                    && updateDependencies && cd ../.. &&
 
 echo "Great Success!"
 

@@ -56,7 +56,7 @@ await bundleJs()
 
 const version = await getVersion()
 
-const packageJson = await readJson(join(root, 'packages', 'completion-worker', 'package.json'))
+const packageJson = await readJson(join(root, 'packages', 'drag-and-drop-worker', 'package.json'))
 
 delete packageJson.scripts
 delete packageJson.devDependencies
@@ -66,7 +66,7 @@ delete packageJson.xo
 delete packageJson.directories
 delete packageJson.nodemonConfig
 packageJson.version = version
-packageJson.main = 'dist/completionWorkerMain.js'
+packageJson.main = 'dist/dragAndDropWorkerMain.js'
 
 await writeJson(join(dist, 'package.json'), packageJson)
 

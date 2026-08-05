@@ -9,13 +9,13 @@ import { root } from './root.js'
  * @type {import('rollup').RollupOptions}
  */
 const options = {
-  input: join(root, 'packages/completion-worker/src/completionWorkerMain.ts'),
+  input: join(root, 'packages/drag-and-drop-worker/src/dragAndDropWorkerMain.ts'),
   preserveEntrySignatures: 'strict',
   treeshake: {
     propertyReadSideEffects: false,
   },
   output: {
-    file: join(root, '.tmp/dist/dist/completionWorkerMain.js'),
+    file: join(root, '.tmp/dist/dist/dragAndDropWorkerMain.js'),
     format: 'es',
     freeze: false,
     generatedCode: {

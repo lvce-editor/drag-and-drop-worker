@@ -1,12 +1,12 @@
-# Completion Worker
+# Drag And Drop Worker
 
-> A Web Worker for the completion functionality in Lvce Editor.
+> A Web Worker for acquiring and normalizing dropped data in Lvce Editor.
 
 ## Contributing
 
 ```sh
-git clone git@github.com:lvce-editor/completion-worker.git &&
-cd completion-worker &&
+git clone git@github.com:lvce-editor/drag-and-drop-worker.git &&
+cd drag-and-drop-worker &&
 npm ci &&
 npm test
 ```
