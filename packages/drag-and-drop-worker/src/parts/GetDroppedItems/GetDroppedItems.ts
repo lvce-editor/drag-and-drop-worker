@@ -22,7 +22,9 @@ interface DroppedLegacyFileItem {
   readonly value: File
 }
 
-type DroppedItem = DroppedFileItem | DroppedLegacyFileItem | DroppedStringItem
+type DroppedFileItemLike = DroppedFileItem | DroppedLegacyFileItem | FileSystemHandle
+
+type DroppedItem = DroppedFileItemLike | DroppedStringItem
 
 interface DragInfoItem {
   readonly data: string
@@ -47,18 +49,24 @@ const isFileSystemHandle = (value: unknown): value is FileSystemHandle => {
   return (candidate.kind === 'directory' || candidate.kind === 'file') && typeof candidate.name === 'string'
 }
 
-const getNativeFile = (item: DroppedFileItem | DroppedLegacyFileItem): File | undefined => {
+const getNativeFile = (item: DroppedFileItemLike): File | undefined => {
+  if (isFileSystemHandle(item)) {
+    return undefined
+  }
   if (item.kind === 'file-legacy') {
     return item.value
   }
   return item.file
 }
 
-const getHandle = (item: DroppedFileItem | DroppedLegacyFileItem): FileSystemHandle | undefined => {
+const getHandle = (item: DroppedFileItemLike): FileSystemHandle | undefined => {
+  if (isFileSystemHandle(item)) {
+    return item
+  }
   return isFileSystemHandle(item.value) ? item.value : undefined
 }
 
-const getName = (item: DroppedFileItem | DroppedLegacyFileItem): string => {
+const getName = (item: DroppedFileItemLike): string => {
   const handle = getHandle(item)
   return handle?.name || getNativeFile(item)?.name || ''
 }
@@ -67,7 +75,7 @@ const getKind = (handle: FileSystemHandle | undefined): 'directory' | 'file' => 
   return handle?.kind === 'directory' ? 'directory' : 'file'
 }
 
-const getBrowserDroppedFile = async (item: DroppedFileItem | DroppedLegacyFileItem, itemId: number, dropId: number): Promise<DroppedFile> => {
+const getBrowserDroppedFile = async (item: DroppedFileItemLike, itemId: number, dropId: number): Promise<DroppedFile> => {
   const handle = getHandle(item)
   const name = getName(item)
   if (!handle) {
@@ -80,7 +88,7 @@ const getBrowserDroppedFile = async (item: DroppedFileItem | DroppedLegacyFileIt
   return { handle, kind, name, path: '', uri }
 }
 
-const getElectronDroppedFile = async (item: DroppedFileItem | DroppedLegacyFileItem): Promise<DroppedFile> => {
+const getElectronDroppedFile = async (item: DroppedFileItemLike): Promise<DroppedFile> => {
   const handle = getHandle(item)
   const nativeFile = getNativeFile(item)
   const name = getName(item)

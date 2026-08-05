@@ -66,6 +66,33 @@ test('persists browser file handles and returns html uris', async () => {
   ])
 })
 
+test('persists raw browser file handles returned by the renderer', async () => {
+  const fileHandle = { kind: 'file', name: 'notes.txt' }
+  using mockRpc = RendererWorker.registerMockRpc({
+    'FileSystemHandle.getFileHandles'() {
+      return [fileHandle] as any
+    },
+    'PersistentFileHandle.addHandle'() {},
+  })
+
+  const result = await getDroppedItems([7], false)
+
+  expect(result.files).toEqual([
+    {
+      handle: fileHandle,
+      kind: 'file',
+      name: 'notes.txt',
+      path: '',
+      uri: expect.stringMatching(droppedFileUriRegex),
+    },
+  ])
+  expect(result.uris).toEqual([result.files[0].uri])
+  expect(mockRpc.invocations).toEqual([
+    ['FileSystemHandle.getFileHandles', [7]],
+    ['PersistentFileHandle.addHandle', result.files[0].uri, fileHandle],
+  ])
+})
+
 test('resolves electron paths from native files carried by ids', async () => {
   const nativeFile = new File(['content'], 'notes.txt')
   const handle = { kind: 'file', name: 'notes.txt' }
