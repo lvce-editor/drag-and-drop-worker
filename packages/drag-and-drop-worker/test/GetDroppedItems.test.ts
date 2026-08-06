@@ -4,6 +4,7 @@ import { getDroppedItems } from '../src/parts/GetDroppedItems/GetDroppedItems.ts
 
 const droppedDirectoryUriRegex = /^html:\/\/\/dropped-files\/\d+\/9\/src\/$/
 const droppedFileUriRegex = /^html:\/\/\/dropped-files\/\d+\/7\/notes\.txt$/
+const legacyDroppedFileUriRegex = /^memfs:\/\/\/dropped-files\/\d+\/1\/legacy\.txt$/
 
 test('returns empty grouped data when nothing was dropped', async () => {
   expect(await getDroppedItems([], false)).toEqual({ files: [], strings: [], uris: [] })
@@ -169,17 +170,24 @@ test('returns no retained uris when drag data is unavailable', async () => {
   expect(await getDroppedItems([1], false)).toEqual({ files: [], strings: [], uris: [] })
 })
 
-test('keeps unsupported legacy browser files as clean file metadata', async () => {
+test('copies legacy browser files to memory and returns their uri', async () => {
   const nativeFile = new File(['content'], 'legacy.txt')
-  using _mockRpc = RendererWorker.registerMockRpc({
+  using mockRpc = RendererWorker.registerMockRpc({
+    'FileSystem.writeFile'() {},
     'FileSystemHandle.getFileHandles'() {
       return [{ kind: 'file-legacy', type: 'text/plain', value: nativeFile }] as any
     },
   })
 
-  expect(await getDroppedItems([1], false)).toEqual({
-    files: [{ handle: undefined, kind: 'file', name: 'legacy.txt', path: '', uri: '' }],
+  const result = await getDroppedItems([1], false)
+
+  expect(result).toEqual({
+    files: [{ handle: undefined, kind: 'file', name: 'legacy.txt', path: '', uri: expect.stringMatching(legacyDroppedFileUriRegex) }],
     strings: [],
-    uris: [],
+    uris: [expect.stringMatching(legacyDroppedFileUriRegex)],
   })
+  expect(mockRpc.invocations).toEqual([
+    ['FileSystemHandle.getFileHandles', [1]],
+    ['FileSystem.writeFile', result.files[0].uri, 'content'],
+  ])
 })
