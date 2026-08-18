@@ -117,6 +117,26 @@ test('resolves electron paths from native files carried by ids', async () => {
   ])
 })
 
+test('uses electron paths resolved before native files cross the worker boundary', async () => {
+  const nativeFile = new File(['content'], 'notes.txt')
+  const handle = { kind: 'file', name: 'notes.txt' }
+  using mockRpc = RendererWorker.registerMockRpc({
+    'FileSystemHandle.getFileHandles'() {
+      return [{ file: nativeFile, kind: 'file', path: '/tmp/notes.txt', type: 'text/plain', value: handle }] as any
+    },
+    'FileSystemHandle.getFilePathElectron'() {
+      throw new Error('the cloned file must not be used to resolve the path')
+    },
+  })
+
+  expect(await getDroppedItems([1], true)).toEqual({
+    files: [{ handle, kind: 'file', name: 'notes.txt', path: '/tmp/notes.txt', uri: 'file:///tmp/notes.txt' }],
+    strings: [],
+    uris: ['file:///tmp/notes.txt'],
+  })
+  expect(mockRpc.invocations).toEqual([['FileSystemHandle.getFileHandles', [1]]])
+})
+
 test('resolves legacy electron files', async () => {
   const nativeFile = new File(['content'], 'legacy.txt')
   using _mockRpc = RendererWorker.registerMockRpc({
