@@ -7,12 +7,14 @@ export interface DroppedStringItem {
 interface DroppedFileItem {
   readonly file?: File
   readonly kind: 'file'
+  readonly path?: string
   readonly type: string
   readonly value: FileSystemHandle
 }
 
 interface DroppedLegacyFileItem {
   readonly kind: 'file-legacy'
+  readonly path?: string
   readonly type: string
   readonly value: File
 }

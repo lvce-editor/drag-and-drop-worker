@@ -11,6 +11,10 @@ export const getElectronDroppedFile = async (item: DroppedFileItemLike): Promise
   const handle = getHandle(item)
   const nativeFile = getNativeFile(item)
   const name = getName(item)
+  const retainedPath = 'path' in item ? item.path : undefined
+  if (retainedPath) {
+    return { handle, kind: getKind(handle), name, path: retainedPath, uri: toFileUri(retainedPath) }
+  }
   if (!nativeFile) {
     return { handle, kind: getKind(handle), name, path: '', uri: '' }
   }
