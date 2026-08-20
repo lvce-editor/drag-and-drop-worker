@@ -1,7 +1,7 @@
-import { getDroppedItems } from '../GetDroppedItems/GetDroppedItems.ts'
+import { dropCommandMap } from '../DropCommandMap/DropCommandMap.ts'
 import { handleMessagePort } from '../HandleMessagePort/HandleMessagePort.ts'
 
 export const commandMap = {
-  'DragAndDrop.getDroppedItems': getDroppedItems,
+  ...dropCommandMap,
   'DragAndDrop.handleMessagePort': handleMessagePort,
 }
