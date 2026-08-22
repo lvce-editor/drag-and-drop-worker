@@ -1,20 +1,20 @@
 import { RendererWorker } from '@lvce-editor/rpc-registry'
 
-export type DropDataFormat = 'file' | 'fileSystemHandle' | 'string'
+type DropDataFormat = 'file' | 'fileSystemHandle' | 'string'
 
 export interface DropDataOptions {
   readonly formats: readonly DropDataFormat[]
   readonly includeElectronFilePaths: boolean
 }
 
-export interface DropDataStringItem {
+interface DropDataStringItem {
   readonly index: number
   readonly kind: 'string'
   readonly type: string
   readonly value: string
 }
 
-export interface DropDataFileItem {
+interface DropDataFileItem {
   readonly electronFilePath?: string
   readonly file?: File
   readonly fileSystemHandle?: FileSystemHandle
