@@ -1,4 +1,4 @@
-import { RendererWorker } from '@lvce-editor/rpc-registry'
+import { RendererProcess } from '@lvce-editor/rpc-registry'
 import type { DroppedFileItemLike } from '../DroppedItem/DroppedItem.ts'
 import type { DroppedFile } from '../DroppedItems/DroppedItems.ts'
 import { getHandle } from '../GetHandle/GetHandle.ts'
@@ -15,12 +15,12 @@ export const getBrowserDroppedFile = async (item: DroppedFileItemLike, itemId: n
       return { handle, kind: 'file', name, path: '', uri: '' }
     }
     const uri = `memfs:///dropped-files/${dropId}/${itemId}/${name}`
-    await RendererWorker.invoke('FileSystem.writeFile', uri, await nativeFile.text())
+    await RendererProcess.invoke('FileSystem.writeFile', uri, await nativeFile.text())
     return { handle, kind: 'file', name, path: '', uri }
   }
   const kind = getKind(handle)
   const suffix = kind === 'directory' ? '/' : ''
   const uri = `html:///dropped-files/${dropId}/${itemId}/${name}${suffix}`
-  await RendererWorker.invoke('PersistentFileHandle.addHandle', uri, handle)
+  await RendererProcess.invoke('PersistentFileHandle.addHandle', uri, handle)
   return { handle, kind, name, path: '', uri }
 }

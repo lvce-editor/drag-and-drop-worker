@@ -1,4 +1,4 @@
-import { RendererWorker } from '@lvce-editor/rpc-registry'
+import { RendererProcess } from '@lvce-editor/rpc-registry'
 
 type DropDataFormat = 'file' | 'fileSystemHandle' | 'string'
 
@@ -27,5 +27,5 @@ interface DropDataFileItem {
 export type DropDataItem = DropDataFileItem | DropDataStringItem
 
 export const getDropData = async (dropId: number, options: DropDataOptions): Promise<readonly DropDataItem[]> => {
-  return RendererWorker.invoke('DropData.get', dropId, options)
+  return RendererProcess.invoke('DropData.get', dropId, options)
 }

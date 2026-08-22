@@ -1,5 +1,5 @@
 import { expect, test } from '@jest/globals'
-import { RendererWorker } from '@lvce-editor/rpc-registry'
+import { registerMockRpc, RpcId } from '@lvce-editor/rpc-registry'
 import { discardDrop } from '../src/parts/DiscardDrop/DiscardDrop.ts'
 import { getDroppedFileHandlesByDropId } from '../src/parts/GetDroppedFileHandlesByDropId/GetDroppedFileHandlesByDropId.ts'
 import { getDroppedItemsByDropId } from '../src/parts/GetDroppedItemsByDropId/GetDroppedItemsByDropId.ts'
@@ -8,7 +8,7 @@ import { getDroppedUrisByDropId } from '../src/parts/GetDroppedUrisByDropId/GetD
 test('resolves ordered browser drop data by drop id', async () => {
   const file = new File(['legacy content'], 'legacy.txt')
   const handle = { kind: 'directory', name: 'src' }
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'DropData.get'() {
       return [
         { index: 0, kind: 'string', type: 'text/uri-list', value: 'file:///workspace/readme.md' },
@@ -57,7 +57,7 @@ test('resolves ordered browser drop data by drop id', async () => {
 })
 
 test('returns only uris for a URI consumer', async () => {
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'DropData.get'() {
       return [{ index: 0, kind: 'string', type: 'text/uri-list', value: 'file:///workspace/notes.txt' }] as any
     },
@@ -79,7 +79,7 @@ test('returns only uris for a URI consumer', async () => {
 test('uses Electron paths supplied by the renderer', async () => {
   const handle = { kind: 'file', name: 'notes.txt' }
   const file = new File(['content'], 'notes.txt')
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'DropData.get'() {
       return [
         {
@@ -105,7 +105,7 @@ test('uses Electron paths supplied by the renderer', async () => {
 
 test('uses Electron paths for legacy files without handles', async () => {
   const file = new File(['content'], 'legacy.txt')
-  using _mockRpc = RendererWorker.registerMockRpc({
+  registerMockRpc(RpcId.RendererProcess, {
     'DropData.get'() {
       return [
         {
@@ -130,7 +130,7 @@ test('uses Electron paths for legacy files without handles', async () => {
 test('requests only file-system file handles for Chat', async () => {
   const fileHandle = { kind: 'file', name: 'notes.txt' }
   const directoryHandle = { kind: 'directory', name: 'src' }
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'DropData.get'() {
       return [
         { fileSystemHandle: fileHandle, index: 0, kind: 'file', name: 'notes.txt', type: 'text/plain' },
@@ -144,7 +144,7 @@ test('requests only file-system file handles for Chat', async () => {
 })
 
 test('discards a drop without requesting any representation', async () => {
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'DropData.get'() {
       return []
     },

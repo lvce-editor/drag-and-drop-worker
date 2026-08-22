@@ -1,4 +1,4 @@
-import { RendererWorker } from '@lvce-editor/rpc-registry'
+import { RendererProcess } from '@lvce-editor/rpc-registry'
 import { parseUriList } from '../ParseUriList/ParseUriList.ts'
 
 interface DragInfoItem {
@@ -11,7 +11,7 @@ interface DragInfo {
 }
 
 export const getRetainedUris = async (): Promise<readonly string[]> => {
-  const dragInfo = (await RendererWorker.invoke('Viewlet.getDragData')) as DragInfo | undefined
+  const dragInfo = (await RendererProcess.invoke('Viewlet.getDragData')) as DragInfo | undefined
   if (!dragInfo || !Array.isArray(dragInfo.items)) {
     return []
   }
