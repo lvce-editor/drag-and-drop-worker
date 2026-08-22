@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "node packages/build/src/build.js",
+    "build": "node packages/build/src/build.ts",
     "build:watch": "npm exec --workspace=packages/build -- esbuild --format=esm --bundle --external:node:buffer --external:electron --external:ws --external:node:worker_threads --watch ../drag-and-drop-worker/src/dragAndDropWorkerMain.ts --outfile=../../.tmp/dist/dist/dragAndDropWorkerMain.js",
     "dev": "npm run build:watch",
     "format": "prettier --write .",
