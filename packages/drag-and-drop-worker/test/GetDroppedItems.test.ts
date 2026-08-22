@@ -40,7 +40,7 @@ test('groups uri lists and strings', async () => {
 })
 
 test('does not request retained data when an opaque Chromium drag also contains a uri', async () => {
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [
         { kind: 'string', type: 'chromium/x-drag-id', value: '8B1BC632EA890FDD4BDB7705EF0231B0' },
@@ -241,7 +241,7 @@ test('copies legacy browser files to memory and returns their uri', async () => 
 })
 
 test('returns an empty browser file entry when no handle or native file is available', async () => {
-  using _mockRpc = RendererWorker.registerMockRpc({
+  registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [{ kind: 'file', type: 'text/plain', value: {} }] as any
     },
@@ -255,7 +255,7 @@ test('returns an empty browser file entry when no handle or native file is avail
 })
 
 test('returns an empty Electron file entry when no handle or native file is available', async () => {
-  using _mockRpc = RendererWorker.registerMockRpc({
+  registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [{ kind: 'file', type: 'text/plain', value: {} }] as any
     },
