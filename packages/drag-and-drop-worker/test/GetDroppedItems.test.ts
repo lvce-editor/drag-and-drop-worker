@@ -1,6 +1,8 @@
 import { expect, test } from '@jest/globals'
 import { RendererWorker } from '@lvce-editor/rpc-registry'
 import { getDroppedItems } from '../src/parts/GetDroppedItems/GetDroppedItems.ts'
+import { getNativeFile } from '../src/parts/GetNativeFile/GetNativeFile.ts'
+import { isFileSystemHandle } from '../src/parts/IsFileSystemHandle/IsFileSystemHandle.ts'
 
 const droppedDirectoryUriRegex = /^html:\/\/\/dropped-files\/\d+\/9\/src\/$/
 const droppedFileUriRegex = /^html:\/\/\/dropped-files\/\d+\/7\/notes\.txt$/
@@ -8,6 +10,15 @@ const legacyDroppedFileUriRegex = /^memfs:\/\/\/dropped-files\/\d+\/1\/legacy\.t
 
 test('returns empty grouped data when nothing was dropped', async () => {
   expect(await getDroppedItems([], false)).toEqual({ files: [], strings: [], uris: [] })
+})
+
+test('recognizes only file system handle shaped values', () => {
+  expect(isFileSystemHandle(undefined)).toBe(false)
+  expect(isFileSystemHandle({ kind: 'file' })).toBe(false)
+})
+
+test('does not treat a raw file system handle as a native file', () => {
+  expect(getNativeFile({ kind: 'file', name: 'notes.txt' } as FileSystemHandle)).toBeUndefined()
 })
 
 test('groups uri lists and strings', async () => {
@@ -25,6 +36,23 @@ test('groups uri lists and strings', async () => {
     strings: ['plain text'],
     uris: ['file:///one', 'file:///two'],
   })
+  expect(mockRpc.invocations).toEqual([['FileSystemHandle.getFileHandles', [1, 2]]])
+})
+
+test('does not request retained data when an opaque Chromium drag also contains a uri', async () => {
+  using mockRpc = RendererWorker.registerMockRpc({
+    'FileSystemHandle.getFileHandles'() {
+      return [
+        { kind: 'string', type: 'chromium/x-drag-id', value: '8B1BC632EA890FDD4BDB7705EF0231B0' },
+        { kind: 'string', type: 'text/uri-list', value: 'file:///workspace/notes.txt' },
+      ] as any
+    },
+    'Viewlet.getDragData'() {
+      throw new Error('retained data must not be requested')
+    },
+  })
+
+  expect(await getDroppedItems([1, 2], false)).toEqual({ files: [], strings: [], uris: ['file:///workspace/notes.txt'] })
   expect(mockRpc.invocations).toEqual([['FileSystemHandle.getFileHandles', [1, 2]]])
 })
 
@@ -210,4 +238,32 @@ test('copies legacy browser files to memory and returns their uri', async () => 
     ['FileSystemHandle.getFileHandles', [1]],
     ['FileSystem.writeFile', result.files[0].uri, 'content'],
   ])
+})
+
+test('returns an empty browser file entry when no handle or native file is available', async () => {
+  using _mockRpc = RendererWorker.registerMockRpc({
+    'FileSystemHandle.getFileHandles'() {
+      return [{ kind: 'file', type: 'text/plain', value: {} }] as any
+    },
+  })
+
+  expect(await getDroppedItems([1], false)).toEqual({
+    files: [{ handle: undefined, kind: 'file', name: '', path: '', uri: '' }],
+    strings: [],
+    uris: [],
+  })
+})
+
+test('returns an empty Electron file entry when no handle or native file is available', async () => {
+  using _mockRpc = RendererWorker.registerMockRpc({
+    'FileSystemHandle.getFileHandles'() {
+      return [{ kind: 'file', type: 'text/plain', value: {} }] as any
+    },
+  })
+
+  expect(await getDroppedItems([1], true)).toEqual({
+    files: [{ handle: undefined, kind: 'file', name: '', path: '', uri: '' }],
+    strings: [],
+    uris: [],
+  })
 })
