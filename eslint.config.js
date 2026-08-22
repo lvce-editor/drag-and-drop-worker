@@ -1,4 +1,11 @@
 import { defineConfig } from 'eslint/config'
 import * as config from '@lvce-editor/eslint-config'
 
-export default defineConfig([...config.default, ...config.recommendedActions, ...config.recommendedTsconfig, ...config.recommendedRegex])
+export default defineConfig([
+  ...config.default,
+  ...config.recommendedActions,
+  ...config.recommendedTsconfig,
+  ...config.recommendedRegex,
+  ...config.recommendedE2e,
+  ...config.recommendedEslintConfig,
+])
