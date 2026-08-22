@@ -3,10 +3,10 @@ import { RendererProcess } from '@lvce-editor/rpc-registry'
 
 const mockRpc = {
   dispose: jest.fn(async () => {}),
-  invoke: jest.fn(async () => 'pong'),
+  invoke: jest.fn(async (_method: string) => 'pong'),
 }
 
-const mockCreate = jest.fn(async () => mockRpc)
+const mockCreate = jest.fn(async (_options: unknown) => mockRpc)
 
 beforeEach(() => {
   jest.clearAllMocks()
