@@ -18,7 +18,7 @@ test('recognizes only file system handle shaped values', () => {
 })
 
 test('does not treat a raw file system handle as a native file', () => {
-  expect(getNativeFile({ kind: 'file', name: 'notes.txt' })).toBeUndefined()
+  expect(getNativeFile({ kind: 'file', name: 'notes.txt' } as FileSystemHandle)).toBeUndefined()
 })
 
 test('groups uri lists and strings', async () => {
