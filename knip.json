@@ -8,9 +8,17 @@
       "project": ["src/**/*.ts"],
       "ignoreDependencies": ["@lvce-editor/verror", "esbuild"]
     },
+    "packages/e2e": {
+      "entry": ["src/**/*.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["playwright-core"]
+    },
     "packages/drag-and-drop-worker": {
-      "entry": ["test/**/*.test.ts"],
+      "entry": ["src/dragAndDropWorkerMain.ts", "test/**/*.test.ts"],
       "project": ["src/**/*.ts", "test/**/*.ts"]
+    },
+    "packages/server": {
+      "project": ["src/**/*.js"]
     }
   }
 }
