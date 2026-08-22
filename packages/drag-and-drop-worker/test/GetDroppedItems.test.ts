@@ -1,5 +1,5 @@
 import { expect, test } from '@jest/globals'
-import { RendererWorker } from '@lvce-editor/rpc-registry'
+import { registerMockRpc, RpcId } from '@lvce-editor/rpc-registry'
 import { getDroppedItems } from '../src/parts/GetDroppedItems/GetDroppedItems.ts'
 import { getNativeFile } from '../src/parts/GetNativeFile/GetNativeFile.ts'
 import { isFileSystemHandle } from '../src/parts/IsFileSystemHandle/IsFileSystemHandle.ts'
@@ -22,7 +22,7 @@ test('does not treat a raw file system handle as a native file', () => {
 })
 
 test('groups uri lists and strings', async () => {
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [
         { kind: 'string', type: 'text/uri-list', value: '# comment\nfile:///one\r\nfile:///two' },
@@ -40,7 +40,7 @@ test('groups uri lists and strings', async () => {
 })
 
 test('does not request retained data when an opaque Chromium drag also contains a uri', async () => {
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [
         { kind: 'string', type: 'chromium/x-drag-id', value: '8B1BC632EA890FDD4BDB7705EF0231B0' },
@@ -59,7 +59,7 @@ test('does not request retained data when an opaque Chromium drag also contains 
 test('persists browser file handles and returns html uris', async () => {
   const fileHandle = { kind: 'file', name: 'notes.txt' }
   const directoryHandle = { kind: 'directory', name: 'src' }
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [
         { kind: 'file', type: 'text/plain', value: fileHandle },
@@ -97,7 +97,7 @@ test('persists browser file handles and returns html uris', async () => {
 
 test('persists raw browser file handles returned by the renderer', async () => {
   const fileHandle = { kind: 'file', name: 'notes.txt' }
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [fileHandle] as any
     },
@@ -125,7 +125,7 @@ test('persists raw browser file handles returned by the renderer', async () => {
 test('resolves electron paths from native files carried by ids', async () => {
   const nativeFile = new File(['content'], 'notes.txt')
   const handle = { kind: 'file', name: 'notes.txt' }
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [{ file: nativeFile, kind: 'file', type: 'text/plain', value: handle }] as any
     },
@@ -148,7 +148,7 @@ test('resolves electron paths from native files carried by ids', async () => {
 test('uses electron paths resolved before native files cross the worker boundary', async () => {
   const nativeFile = new File(['content'], 'notes.txt')
   const handle = { kind: 'file', name: 'notes.txt' }
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [{ file: nativeFile, kind: 'file', path: '/tmp/notes.txt', type: 'text/plain', value: handle }] as any
     },
@@ -167,7 +167,7 @@ test('uses electron paths resolved before native files cross the worker boundary
 
 test('resolves legacy electron files', async () => {
   const nativeFile = new File(['content'], 'legacy.txt')
-  using _mockRpc = RendererWorker.registerMockRpc({
+  registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [{ kind: 'file-legacy', type: 'text/plain', value: nativeFile }] as any
     },
@@ -184,7 +184,7 @@ test('resolves legacy electron files', async () => {
 })
 
 test('uses retained uri data for an opaque Chromium drag id', async () => {
-  using _mockRpc = RendererWorker.registerMockRpc({
+  registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [{ kind: 'string', type: 'chromium/x-drag-id', value: '8B1BC632EA890FDD4BDB7705EF0231B0' }] as any
     },
@@ -206,7 +206,7 @@ test('uses retained uri data for an opaque Chromium drag id', async () => {
 })
 
 test('returns no retained uris when drag data is unavailable', async () => {
-  using _mockRpc = RendererWorker.registerMockRpc({
+  registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [{ kind: 'string', type: '', value: '8B1BC632EA890FDD4BDB7705EF0231B0' }] as any
     },
@@ -220,7 +220,7 @@ test('returns no retained uris when drag data is unavailable', async () => {
 
 test('copies legacy browser files to memory and returns their uri', async () => {
   const nativeFile = new File(['content'], 'legacy.txt')
-  using mockRpc = RendererWorker.registerMockRpc({
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
     'FileSystem.writeFile'() {},
     'FileSystemHandle.getFileHandles'() {
       return [{ kind: 'file-legacy', type: 'text/plain', value: nativeFile }] as any
@@ -241,7 +241,7 @@ test('copies legacy browser files to memory and returns their uri', async () => 
 })
 
 test('returns an empty browser file entry when no handle or native file is available', async () => {
-  using _mockRpc = RendererWorker.registerMockRpc({
+  registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [{ kind: 'file', type: 'text/plain', value: {} }] as any
     },
@@ -255,7 +255,7 @@ test('returns an empty browser file entry when no handle or native file is avail
 })
 
 test('returns an empty Electron file entry when no handle or native file is available', async () => {
-  using _mockRpc = RendererWorker.registerMockRpc({
+  registerMockRpc(RpcId.RendererProcess, {
     'FileSystemHandle.getFileHandles'() {
       return [{ kind: 'file', type: 'text/plain', value: {} }] as any
     },
