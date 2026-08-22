@@ -1,0 +1,16 @@
+{
+  "name": "@lvce-editor/drag-and-drop-worker-server",
+  "version": "0.0.0-dev",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/dev.js --test-path=../e2e"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@lvce-editor/server": "0.105.16"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
+  }
+}
