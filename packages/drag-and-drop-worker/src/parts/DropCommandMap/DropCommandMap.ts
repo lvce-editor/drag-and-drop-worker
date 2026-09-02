@@ -1,5 +1,6 @@
 import { discardDrop } from '../DiscardDrop/DiscardDrop.ts'
 import { getDroppedFileHandlesByDropId } from '../GetDroppedFileHandlesByDropId/GetDroppedFileHandlesByDropId.ts'
+import { getDroppedFilesByDropId } from '../GetDroppedFilesByDropId/GetDroppedFilesByDropId.ts'
 import { getDroppedItems } from '../GetDroppedItems/GetDroppedItems.ts'
 import { getDroppedItemsByDropId } from '../GetDroppedItemsByDropId/GetDroppedItemsByDropId.ts'
 import { getDroppedUrisByDropId } from '../GetDroppedUrisByDropId/GetDroppedUrisByDropId.ts'
@@ -10,6 +11,7 @@ export const dropCommandMap = {
   'DragAndDrop.discardDrop': discardDrop,
   'DragAndDrop.discardTextDrag': discardTextDrag,
   'DragAndDrop.getDroppedFileHandlesByDropId': getDroppedFileHandlesByDropId,
+  'DragAndDrop.getDroppedFilesByDropId': getDroppedFilesByDropId,
   'DragAndDrop.getDroppedItems': getDroppedItems,
   'DragAndDrop.getDroppedItemsByDropId': getDroppedItemsByDropId,
   'DragAndDrop.getDroppedUrisByDropId': getDroppedUrisByDropId,
