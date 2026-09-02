@@ -4,7 +4,7 @@ export const name = 'viewlet.drag-and-drop-worker-native-file'
 
 export const skip = ['webkit'] as const
 
-export const test: Test = async ({ expect, Explorer, FileSystem, Locator, Workspace }) => {
+export const test: Test = async ({ DragAndDrop, expect, Explorer, FileSystem, Locator, Workspace }) => {
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/existing.txt`, 'existing')
   await Workspace.setPath(tmpDir)
@@ -14,9 +14,9 @@ export const test: Test = async ({ expect, Explorer, FileSystem, Locator, Worksp
   await writable.write('native file')
   await writable.close()
   const file = await fileHandle.getFile()
-  const itemId = await FileSystem.registerFileHandle(fileHandle)
+  const dropId = await DragAndDrop.createDropSession([{ file, fileSystemHandle: fileHandle, kind: 'file', type: file.type }])
 
-  await Explorer.handleDrop(0, 0, [itemId], [file])
+  await Explorer.handleDrop(0, 0, dropId)
 
   const droppedFile = Locator('.TreeItem[aria-label="native-dropped.txt"]')
   await expect(droppedFile).toBeVisible()
