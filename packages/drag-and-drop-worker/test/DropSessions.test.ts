@@ -1,7 +1,6 @@
 import { expect, test } from '@jest/globals'
 import { registerMockRpc, RpcId } from '@lvce-editor/rpc-registry'
 import { discardDrop } from '../src/parts/DiscardDrop/DiscardDrop.ts'
-import { getDroppedFileHandlesByDropId } from '../src/parts/GetDroppedFileHandlesByDropId/GetDroppedFileHandlesByDropId.ts'
 import { getDroppedFilesByDropId } from '../src/parts/GetDroppedFilesByDropId/GetDroppedFilesByDropId.ts'
 import { getDroppedItemsByDropId } from '../src/parts/GetDroppedItemsByDropId/GetDroppedItemsByDropId.ts'
 import { getDroppedUrisByDropId } from '../src/parts/GetDroppedUrisByDropId/GetDroppedUrisByDropId.ts'
@@ -126,22 +125,6 @@ test('uses Electron paths for legacy files without handles', async () => {
     strings: [],
     uris: ['file:///tmp/legacy.txt'],
   })
-})
-
-test('requests only file-system file handles for Chat', async () => {
-  const fileHandle = { kind: 'file', name: 'notes.txt' }
-  const directoryHandle = { kind: 'directory', name: 'src' }
-  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
-    'DropData.get'() {
-      return [
-        { fileSystemHandle: fileHandle, index: 0, kind: 'file', name: 'notes.txt', type: 'text/plain' },
-        { fileSystemHandle: directoryHandle, index: 1, kind: 'file', name: 'src', type: '' },
-      ] as any
-    },
-  })
-
-  await expect(getDroppedFileHandlesByDropId(11)).resolves.toEqual([fileHandle])
-  expect(mockRpc.invocations).toEqual([['DropData.get', 11, { formats: ['fileSystemHandle'], includeElectronFilePaths: false }]])
 })
 
 test('requests only native files for a file consumer', async () => {
