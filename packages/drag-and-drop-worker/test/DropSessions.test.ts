@@ -2,6 +2,7 @@ import { expect, test } from '@jest/globals'
 import { registerMockRpc, RpcId } from '@lvce-editor/rpc-registry'
 import { discardDrop } from '../src/parts/DiscardDrop/DiscardDrop.ts'
 import { getDroppedFileHandlesByDropId } from '../src/parts/GetDroppedFileHandlesByDropId/GetDroppedFileHandlesByDropId.ts'
+import { getDroppedFilesByDropId } from '../src/parts/GetDroppedFilesByDropId/GetDroppedFilesByDropId.ts'
 import { getDroppedItemsByDropId } from '../src/parts/GetDroppedItemsByDropId/GetDroppedItemsByDropId.ts'
 import { getDroppedUrisByDropId } from '../src/parts/GetDroppedUrisByDropId/GetDroppedUrisByDropId.ts'
 
@@ -141,6 +142,23 @@ test('requests only file-system file handles for Chat', async () => {
 
   await expect(getDroppedFileHandlesByDropId(11)).resolves.toEqual([fileHandle])
   expect(mockRpc.invocations).toEqual([['DropData.get', 11, { formats: ['fileSystemHandle'], includeElectronFilePaths: false }]])
+})
+
+test('requests only native files for a file consumer', async () => {
+  const first = new File(['first'], 'first.txt', { type: 'text/plain' })
+  const second = new File(['second'], 'second.txt', { type: 'text/plain' })
+  const mockRpc = registerMockRpc(RpcId.RendererProcess, {
+    'DropData.get'() {
+      return [
+        { file: first, index: 0, kind: 'file', name: 'first.txt', type: 'text/plain' },
+        { index: 1, kind: 'file', name: 'folder', type: '' },
+        { file: second, index: 2, kind: 'file', name: 'second.txt', type: 'text/plain' },
+      ] as any
+    },
+  })
+
+  await expect(getDroppedFilesByDropId(13)).resolves.toEqual([first, second])
+  expect(mockRpc.invocations).toEqual([['DropData.get', 13, { formats: ['file'], includeElectronFilePaths: false }]])
 })
 
 test('discards a drop without requesting any representation', async () => {
